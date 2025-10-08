@@ -1,0 +1,21 @@
+@startuml Python Stack - Container Diagram
+
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+Person(user, "Пользователь", "Оценививающий эксперт")
+
+System_Boundary(system, "Система племенного смотра") {
+    Container(spa, "Веб-интерфейс", "React + TypeScript", "Single Page Application, формы ввода данных")
+    Container(api, "API сервер", "Python + FastAPI", "REST API, бизнес-логика")
+    Container(db, "База данных", "PostgreSQL", "Хранение данных о собаках, владельцах, результатах")
+    Container(pdf_service, "Генератор отчетов", "Python + WeasyPrint", "Генерация PDF документов")
+}
+
+Rel(user, spa, "Работает с формами через браузер", "HTTPS")
+Rel(spa, api, "Вызывает API endpoints", "REST/JSON")
+Rel(api, db, "Чтение/запись данных", "SQL")
+Rel(api, pdf_service, "Запрос на генерацию отчетов", "HTTP")
+Rel(pdf_service, api, "Возврат сгенерированных PDF", "HTTP")
+
+@enduml

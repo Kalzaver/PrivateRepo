@@ -4,18 +4,24 @@
 !include <C4/C4_Container>
 
 Person(user, "Пользователь", "Оценививающий эксперт")
+Person(judge, "Пользователь","Судья на выставке")
 
-System_Boundary(system, "Система племенного смотра") {
+System_Boundary(system, "Система оценки собак") {
     Container(spa, "Веб-интерфейс", "React + TypeScript", "Single Page Application, формы ввода данных")
     Container(api, "API сервер", "Python + FastAPI", "REST API, бизнес-логика")
     Container(db, "База данных", "PostgreSQL", "Хранение данных о собаках, владельцах, результатах")
     Container(pdf_service, "Генератор отчетов", "Python + WeasyPrint", "Генерация PDF документов")
+    Container(time_report, "Система учёта результатов забегов", "Python + WeasyPrint", "Генерация PDF документов")
 }
 
-Rel(user, spa, "Работает с формами через браузер", "HTTPS")
+Rel(user, spa, "Работает с формами через браузер", "HTTP")
+Rel(judge, time_report, "Заносит время забега", "HTTP")
 Rel(spa, api, "Вызывает API endpoints", "REST/JSON")
+Rel(time_report, api, "Вызывает API endpoints", "REST/JSON")
 Rel(api, db, "Чтение/запись данных", "SQL")
 Rel(api, pdf_service, "Запрос на генерацию отчетов", "HTTP")
 Rel(pdf_service, api, "Возврат сгенерированных PDF", "HTTP")
+
+
 
 @enduml

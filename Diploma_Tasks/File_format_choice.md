@@ -22,3 +22,78 @@
 
 Для окончательного выбора способа реализации взаимодействия с документами необходимо разработать несколько тестовых проектов с функционалом по записи информации внутрь документов и проверки конечного внешнего вида.
 
+#### ПРИМЕР КОДА С ИСПОЛЬЗОВАНИЕМ БИБЛИОТЕКИ DUCKX
+```
+void test_function(){
+    duckx::Document doc(<путь к файлу>);
+    doc.open();
+    if (doc.is_open()) {
+        for (duckx::Paragraph p = doc.paragraphs(); p.has_next(); p.next()){
+            for (duckx::Run r = p.runs(); r.has_next(); r.next()){
+                string t = r.get_text();
+                QString str = QString::fromStdString(t);
+
+                if (str.contains("NameOfTheClubPutHere")){
+                    str.replace("NameOfTheClubPutHere", QString::number(123));
+                    r.set_text(str.toStdString());
+                    doc.save();
+                }
+            }
+        }
+    }
+}
+```
+
+#### ПРИМЕР КОДА С ИЗМЕНЕНИЯМИ В XML ФАЙЛА
+```
+bool Widget::editContentXml(const QString& xmlFilePath){
+    QString nameOfTheClub = ui->lineEdit_1->text();
+
+    if (!QFile::exists(xmlFilePath)) return false;
+
+    QFile file(xmlFilePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+
+    QDomDocument doc;
+    QString errorMsg;
+    int errorLine, errorColumn;
+
+    if (!doc.setContent(&file, &errorMsg, &errorLine, &errorColumn)) file.close();
+    file.close();
+
+    QDomNodeList spans = doc.elementsByTagName("text:span");
+    int replacementsCount = 0;
+
+    for (int i = 0; i < spans.count(); i++) {
+        QDomNode node = spans.at(i);
+        QDomElement span = node.toElement();
+        if (span.isNull()) continue;
+
+        QString spanText = span.text();
+
+        if (spanText == "nameOfTheClud") {
+            QDomNodeList children = span.childNodes();
+            for (int j = children.size() - 1; j >= 0; --j) {
+                span.removeChild(children.at(j));
+            }
+            span.appendChild(doc.createTextNode(nameOfTheClub));
+            replacementsCount++;
+        }
+
+    if (!file.open(QIODevice::WriteOnly || QIODevice::Text)) return false;
+
+    QTextStream stream(&file);
+    doc.save(stream, 4);
+    file.close();
+    return true;
+}
+```
+
+Сравним 2 функции по замене текста при двух разных сценариях. В результате сравнительного анализа можно сделать следующие выводы:
+
+1. Редактирование docx при помощи использования библиотеки duckX значительно менее объёмно, что упрощает понимание программного кода. 
+2. Использование библиотки значительно проще, по сравнением с модификацией XML файлов. Для корректной модификации XML файла необходимо найти слова-маркеры внутри тегов файла. Без знания структуры файла сделать это значительно трудозатратнее, чем модифицировать сразу docx файл.
+3. DuckX не принуждает взаимодействовать с распакованным odt файлом. Для восстановления возможности чтения необходимо архивировать файлы обратно в zip формат и менять на odt, что не гарантирует получение читаемого файла обратно
+
+## Конечный вывод
+В конечном итоге, более благоразумным решением будет выбрать способ по использованию библиотеки duckX для работы с файлами формата docx без смены формата, задействования архиваторов и других сторонних программ.

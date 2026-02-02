@@ -1,0 +1,114 @@
+@startuml "Диаграмма классов системы с 1 страницей по заполнению"
+left to right direction
+
+class MainMenu {
+  - ui: Ui::MainMenu*
+  - breedShowModel: QStandardItemModel*
+  + MainMenu()
+  + ~MainMenu()
+  + on_push_button()
+}
+
+class Widget {
+  - ui: Ui::Widget*
+  - m_model: QStandardItemModel*
+  - mapper: QDataWidgetMapper*
+  + Widget()
+  + ~Widget()
+  + on_clicked_switchPage()
+  + on_click_back()
+  + on_click_cancel()
+}
+
+class MainWindow {
+  - ui: Ui::MainWindow*
+  - m_model: QStandardItemModel*
+  - mapper: QDataWidgetMapper*
+  + MainWindow()
+  + ~MainWindow()
+  + on_clicked_push()
+  + on_click_back()
+  + on_click_cancel()
+}
+
+class ThirdWindow {
+  - ui: Ui::ThirdWindow*
+  - m_model: QStandardItemModel*
+  - mapper: QDataWidgetMapper*
+  + ThirdWindow()
+  + ~ThirdWindow()
+  + on_clicked_push()
+  + on_click_back()
+  + on_click_cancel()
+}
+
+class fourthPage {
+  - ui: Ui::fourthPage*
+  - m_model: QStandardItemModel*
+  - mapper: QDataWidgetMapper*
+  + fourthPage()
+  + ~fourthPage()
+  + on_clicked_forward()
+  + on_click_back()
+  + on_click_cancel()
+}
+
+class firthPageLastOne {
+  - ui: Ui::firthPageLastOne*
+  - m_model: QStandardItemModel*
+  - mapper: QDataWidgetMapper*
+  + firthPageLastOne()
+  + ~firthPageLastOne()
+  + JSON_save()
+  + on_push_button()
+  + on_click_back()
+  + on_click_cancel()
+  + radioCheck()
+}
+
+
+Widget --|> QWidget
+MainMenu --|> QMainWindow
+MainWindow --|> QMainWindow
+ThirdWindow --|> QMainWindow
+fourthPage --|> QMainWindow
+firthPageLastOne --|> QMainWindow
+
+
+MainMenu "1" --> "создаёт" Widget : on_push_button()
+Widget "1" --> "переносит на" MainWindow : on_clicked_switchPage()
+MainWindow "1" --> "переносит на" ThirdWindow : on_clicked_push()
+ThirdWindow "1" --> "переносит на" fourthPage : on_clicked_push()
+fourthPage "1" --> "переносит на" firthPageLastOne : on_clicked_forward()
+
+Widget "1" --> "возвращает на" MainMenu : on_click_back()
+MainWindow "1" --> "возвращает на" Widget : on_click_back()
+ThirdWindow "1" --> "возвращает на" MainWindow : on_click_back()
+fourthPage "1" --> "возвращает на" ThirdWindow : on_click_back()
+firthPageLastOne "1" --> "возвращает на" fourthPage : on_click_back()
+
+Widget "1" --> "отмена заполнения" MainMenu : on_click_cancel()
+MainWindow "1" --> "отмена заполнения" MainMenu : on_click_cancel()
+ThirdWindow "1" --> "отмена заполнения" MainMenu : on_click_cancel()
+fourthPage "1" --> "отмена заполнения" MainMenu : on_click_cancel()
+firthPageLastOne "1" --> "отмена заполнения" MainMenu : on_click_cancel()
+
+MainMenu "1" --> "1" QStandardItemModel : создаёт и разделяет
+Widget "1" --> "1" QStandardItemModel : использует
+MainWindow "1" --> "1" QStandardItemModel : использует
+ThirdWindow "1" --> "1" QStandardItemModel : использует
+fourthPage "1" --> "1" QStandardItemModel : использует
+firthPageLastOne "1" --> "1" QStandardItemModel : использует
+
+Widget "1" --> "1" QDataWidgetMapper : создаёт
+MainWindow "1" --> "1" QDataWidgetMapper : создаёт
+ThirdWindow "1" --> "1" QDataWidgetMapper : создаёт
+fourthPage "1" --> "1" QDataWidgetMapper : создаёт
+firthPageLastOne "1" --> "1" QDataWidgetMapper : создаёт
+
+MainMenu ..> QProcess : вызывает скрипт Python
+firthPageLastOne ..> QProcess : вызывает скрипт Python
+firthPageLastOne ..> QJsonDocument : сохраняет данные в JSON
+
+note top of MainMenu: Главное меню, откуда будет осуществляться \nпереход на все существующие \nстраницы по заполнению документов
+@enduml
